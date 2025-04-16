@@ -1,60 +1,49 @@
-# 🔐 Laboratorio - Criptografía con Tampermonkey y CryptoJS
+# 🕵️‍♀️ Laboratorio 4 - Criptografía Web con Tampermonkey
 
-Este laboratorio tiene como objetivo desarrollar un script con **Tampermonkey** que descifre mensajes ocultos en una página web usando la librería **CryptoJS**. Se espera que el script obtenga automáticamente la clave de cifrado, la cantidad de mensajes y los mensajes en texto plano desde el HTML de un sitio web público.
+Este proyecto consiste en un script desarrollado para Tampermonkey que permite interceptar, descifrar y visualizar mensajes cifrados en un sitio web público usando técnicas de análisis criptográfico. Se aplicó el algoritmo TripleDES junto con la librería CryptoJS y verificación SRI.
 
-## 📋 Descripción general
-
-El informante ha dejado mensajes cifrados en el sitio web:  
-🔗 [https://cripto.tiiny.site](https://cripto.tiiny.site)  
-
-El reto consiste en interceptar, descifrar e imprimir los mensajes usando un script que se ejecuta automáticamente al visitar la página, sin intervención del usuario.
-
-## 💻 Tecnologías utilizadas
-
-- [Tampermonkey](https://www.tampermonkey.net/)  
-- [CryptoJS](https://cdnjs.com/libraries/crypto-js)  
-- JavaScript  
-- SRI (Subresource Integrity)
-
-## 🎯 Objetivos del script
-
-- Detectar el algoritmo de cifrado utilizado (3DES).
-- Obtener la **key** de descifrado directamente del HTML.
-- Calcular la cantidad de mensajes cifrados.
-- Imprimir por consola:
-  - La key obtenida.
-  - Número de mensajes cifrados.
-  - Cada mensaje cifrado junto a su equivalente descifrado.
-- Mostrar los mensajes en texto plano dentro del mismo sitio web.
-- Asegurar que el script funcione incluso si el contenido cambia (texto y cantidad de mensajes variable).
+🔗 **Sitio objetivo:** [https://cripto.tiiny.site/](https://cripto.tiiny.site/)  
 
 ---
 
-## 🛠️ Desarrollo por partes
+## 🚀 ¿Qué hace este script?
 
-### 🔑 Parte 1: Obtener la clave
+El script tiene tres funcionalidades principales:
 
-- Se analiza el HTML y se extraen las letras mayúsculas desde un `<p>`, eliminando espacios.
-- Se usa una función que detecta frases con punto final y extrae la primera letra en mayúscula para formar la key.
+1. **Obtención automática de la llave de cifrado:**  
+   Analiza el contenido del sitio web para construir automáticamente la clave secreta a partir del primer carácter de cada oración del texto principal.
 
-### 🌐 Parte 2: Filtrado por URL y cantidad de mensajes
+2. **Reconocimiento de mensajes cifrados:**  
+   Detecta dinámicamente cuántos mensajes cifrados existen en el HTML basándose en una clase específica (`class*="M"`).
 
-- El script se activa solo en la URL del informante usando `@match`.
-- Se escanean los elementos `<div class="M">` para contar los mensajes cifrados.
-
-### 🧪 Parte 3: Descifrado y visualización
-
-- Se importa la librería CryptoJS desde CDNJS con su hash SRI.
-- Se utiliza `TripleDES.decrypt` con modo ECB y la clave obtenida para descifrar cada mensaje.
-- Se imprime cada mensaje en consola y se muestra también en el HTML como elementos `<p>`.
+3. **Descifrado de los mensajes:**  
+   Utiliza el algoritmo `TripleDES` en modo `ECB` y padding `Pkcs7` para descifrar los mensajes. Luego:
+   - Imprime la clave, cantidad de mensajes y cada par mensaje cifrado / mensaje descifrado en consola.
+   - Inserta los mensajes descifrados como texto plano en el sitio web.
 
 ---
 
-## ⚠️ Consideraciones y mejoras
+## 🧠 Lógica del Script
+```js
+var key = CryptoJS.enc.Utf8.parse(concatenacion);
+var mensaje_descifrado = CryptoJS.TripleDES.decrypt(mensaje_cifrado, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+});
+```
+  ✅ El código es lo suficientemente abstracto para adaptarse a cualquier cantidad de mensajes o texto fuente en el sitio objetivo.
 
-> 🛠️ **Nota:** Aunque el script cumple con los objetivos propuestos, existen oportunidades para mejorarlo:
-- Incorporar detección de errores y manejo de excepciones.
-- Agregar validaciones adicionales al extraer la clave.
-- Modularizar el código para mayor legibilidad y reusabilidad.
-- Considerar otros métodos de cifrado o compatibilidad extendida con diferentes páginas.
+  
+---
+## 🛡️ Seguridad
+Se implementa la librería CryptoJS vía CDN con un hash SRI (Subresource Integrity) para evitar la manipulación de código de terceros:
 
+js
+// @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js#sha512-a+SUD...
+
+---
+## 📦 Estructura del Proyecto
+- @match: El script solo se ejecuta en https://cripto.tiiny.site/
+- CryptoJS: Cifrado y descifrado de los mensajes
+- console.log: Se muestran mensajes útiles en consola para depuración
+- document.body.appendChild(): Inserta mensajes descifrados directamente en la web
